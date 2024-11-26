@@ -2,9 +2,9 @@ package routes
 
 import (
 	"context"
+	"github.com/labstack/echo/v4"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/hellokvn/go-grpc-api-gateway/pkg/order/pb"
 )
 
@@ -13,15 +13,14 @@ type CreateOrderRequestBody struct {
 	Quantity  int64 `json:"quantity"`
 }
 
-func CreateOrder(ctx *gin.Context, c pb.OrderServiceClient) {
+func CreateOrder(ctx echo.Context, c pb.OrderServiceClient) error {
 	b := CreateOrderRequestBody{}
 
-	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
+	if err := ctx.Bind(&b); err != nil {
+		return ctx.JSON(http.StatusBadRequest, err)
 	}
 
-	userId, _ := ctx.Get("userId")
+	userId := ctx.Get("userId")
 
 	res, err := c.CreateOrder(context.Background(), &pb.CreateOrderRequest{
 		ProductId: b.ProductId,
@@ -30,9 +29,8 @@ func CreateOrder(ctx *gin.Context, c pb.OrderServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
-		return
+		return ctx.JSON(http.StatusBadRequest, err)
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	return ctx.JSON(http.StatusCreated, &res)
 }

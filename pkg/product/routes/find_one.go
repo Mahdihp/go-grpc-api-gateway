@@ -2,19 +2,19 @@ package routes
 
 import (
 	"context"
+	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/hellokvn/go-grpc-api-gateway/pkg/product/pb"
 )
 
-func FineOne(ctx *gin.Context, c pb.ProductServiceClient) {
+func FineOne(ctx echo.Context, c pb.ProductServiceClient) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
-		return
+		//ctx.AbortWithError(http.StatusBadGateway, err)
+		return err
 	}
 
 	res, err := c.FindOne(context.Background(), &pb.FindOneRequest{
@@ -22,9 +22,9 @@ func FineOne(ctx *gin.Context, c pb.ProductServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
-		return
+		//ctx.AbortWithError(http.StatusBadGateway, err)
+		return err
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	return ctx.JSON(http.StatusCreated, &res)
 }

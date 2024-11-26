@@ -4,6 +4,8 @@ import "github.com/spf13/viper"
 
 type Config struct {
 	Port          string `mapstructure:"PORT"`
+	Zipin_Api     string `mapstructure:"ZIPKIN_API"`
+	Kafka_Server  string `mapstructure:"KAFKA_SERVER"`
 	AuthSvcUrl    string `mapstructure:"AUTH_SVC_URL"`
 	ProductSvcUrl string `mapstructure:"PRODUCT_SVC_URL"`
 	OrderSvcUrl   string `mapstructure:"ORDER_SVC_URL"`

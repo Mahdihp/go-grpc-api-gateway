@@ -2,9 +2,9 @@ package routes
 
 import (
 	"context"
+	"github.com/labstack/echo/v4"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/hellokvn/go-grpc-api-gateway/pkg/auth/pb"
 )
 
@@ -13,12 +13,12 @@ type LoginRequestBody struct {
 	Password string `json:"password"`
 }
 
-func Login(ctx *gin.Context, c pb.AuthServiceClient) {
+func Login(ctx echo.Context, c pb.AuthServiceClient) error {
 	b := LoginRequestBody{}
 
-	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
+	if err := ctx.Bind(&b); err != nil {
+		//ctx.AbortWithError(http.StatusBadRequest, err)
+		return ctx.JSON(http.StatusBadRequest, err)
 	}
 
 	res, err := c.Login(context.Background(), &pb.LoginRequest{
@@ -27,9 +27,9 @@ func Login(ctx *gin.Context, c pb.AuthServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
-		return
+		//ctx.AbortWithError(http.StatusBadGateway, err)
+		return echo.NewHTTPError(http.StatusBadGateway, "هنوز grpc راه ننداختیم")
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	return ctx.JSON(http.StatusCreated, &res)
 }

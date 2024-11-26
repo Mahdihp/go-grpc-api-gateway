@@ -2,9 +2,9 @@ package routes
 
 import (
 	"context"
+	"github.com/labstack/echo/v4"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/hellokvn/go-grpc-api-gateway/pkg/product/pb"
 )
 
@@ -14,12 +14,12 @@ type CreateProductRequestBody struct {
 	Price int64  `json:"price"`
 }
 
-func CreateProduct(ctx *gin.Context, c pb.ProductServiceClient) {
+func CreateProduct(ctx echo.Context, c pb.ProductServiceClient) error {
 	b := CreateProductRequestBody{}
 
-	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
+	if err := ctx.Bind(&b); err != nil {
+		//ctx.AbortWithError(http.StatusBadRequest, err)
+		return ctx.JSON(http.StatusBadRequest, err)
 	}
 
 	res, err := c.CreateProduct(context.Background(), &pb.CreateProductRequest{
@@ -29,9 +29,8 @@ func CreateProduct(ctx *gin.Context, c pb.ProductServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
-		return
+		return ctx.JSON(http.StatusBadRequest, err)
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	return ctx.JSON(http.StatusCreated, &res)
 }
